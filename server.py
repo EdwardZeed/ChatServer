@@ -4,6 +4,7 @@ import os
 import sys
 import socket
 
+host = '127.0.0.1'
 
 #Use this variable for your loop
 daemon_quit = False
@@ -21,6 +22,18 @@ def run():
 
     # Call your own functions from within 
     # the run() funcion
+    port = sys.argv[1]
+    server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try:
+        server.bind(host, port)
+    except:
+        print("error")
+
+
+    server.listen(2)
+    server.close()
+
     pass
 
 
