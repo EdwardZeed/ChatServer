@@ -27,9 +27,9 @@ def run():
 
     # Call your own functions from within 
     # the run() funcion
-    port = sys.argv[1]
+    port = int(sys.argv[1])
     server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    # server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         server.bind((host, port))
     except:
@@ -43,7 +43,7 @@ def run():
 
     while True:
         readable,writeable,exceptional=select.select(inputs, outputs, inputs, 1)
-        for socket in readable:
+        for s in readable:
             if socket == server:
                 client,addr = socket.accept()
 
@@ -63,7 +63,7 @@ def run():
                 if request:
                     handle_request(request)
 
-        for socket in writeable:
+        for s in writeable:
             msg = result[socket]
             msg = msg.encode('utf-8')
             socket.send(msg)
