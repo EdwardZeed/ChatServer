@@ -205,7 +205,7 @@ def say(socket, request):
     userName = socket_user[socket]
 
     channels[channel_name] = {userName: message}
-    feedback = "RECV " + userName + " " + " " + channel_name + message + "\n"
+    feedback = "RECV " + userName + " " + channel_name + " " + message + "\n"
     socket.sendall(feedback.encode('utf-8'))
 
 if __name__ == '__main__':
