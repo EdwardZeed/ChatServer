@@ -201,7 +201,11 @@ def join_channel(socket, request):
 def say(socket, request):
     sep_req = request.strip().split(" ")
     channel_name = sep_req[1]
-    message = sep_req[2]
+    message = ""
+    i = 2
+    while i < len(sep_req):
+        message = message + sep_req[i]
+        i += 1
     userName = socket_user[socket]
 
     channels[channel_name] = {userName: message}
