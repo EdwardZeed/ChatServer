@@ -36,61 +36,101 @@ def run():
         print("error! cannot connect to server")
     server.listen()
 
-    inputs = [server,]
+    inputs = [server]
     outputs = []
     result = {}
-    server.setblocking(True)
+    server.setblocking(False)
 
     while True:
         readable,writeable,exceptional=select.select(inputs, outputs, inputs, 1)
         for s in readable:
-            if socket == server:
-                client,addr = socket.accept()
+            if s == server:
+                client,addr = server.accept()
+                client.setblocking(False)
 
-                if not client in inputs:
-                    inputs.append(client)
-                    request = socket.recv(1024).decode('utf-8')
-                    if request:
-                        handle_request(request)
-                if not client in outputs:
-                    outputs.append(client)
+                # if not client in inputs:
+                #     inputs.append(client)
+                #     request = socket.recv(1024).decode('utf-8')
+                #     if request:
+                #         handle_request(request)
+                # if not client in outputs:
+                #     outputs.append(client)
+                inputs.append(client)
 
             else:
-                if not socket in outputs:
-                    outputs.append(socket)
-                request = socket.recv(1024)
+                # if not socket in outputs:
+                #     outputs.append(socket)
+                request = s.recv(1024)
                 request = request.decode('utf-8')
                 if request:
-                    handle_request(request)
+                    handle_request(s, request)
+                else:
+                    inputs.remove(s)
 
-        for s in writeable:
-            msg = result[socket]
-            msg = msg.encode('utf-8')
-            socket.send(msg)
+        # for s in writeable:
+        #     msg = result[socket]
+        #     msg = msg.encode('utf-8')
+        #     socket.send(msg)
+
+        # request = client.recv(1024)
+        # print(request)
+        # client.sendall(request)
 
 
 
 
 
-    server.close()
+    # server.close()
 
-def handle_request(request):
+def handle_request(socket, request):
     if request.startswith('LOGIN'):
-        log_in(request)
+        log_in(socket, request)
+
+    if request.startswith('REGISTER'):
+        register(socket, request)
+
 
 def log_in(socket, request):
     sep_req = request.strip().split(" ")
     if len(sep_req) < 3:
-        result[socket] = "RESULT LOGIN 0"
+        socket.sendall("RESULT LOGIN 0".encode('utf-8'))
         return False
-    userName = sep_req[1]
-    passwd = sep_req[2]
-    if not userInfo[userName]:
-        result[socket] = "RESULT LOGIN 0"
+    try:
+        userName = sep_req[1]
+        passwd = sep_req[2]
+        if userName in userInfo:
+            if passwd == userInfo[userName]:
+                socket.sendall("RESULT LOGIN 1".encode('utf-8'))
+                return True
+            else:
+                socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+                return False
+        else:
+            socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+            return False
+    except:
+        socket.sendall("RESULT LOGIN 0".encode('utf-8'))
         return False
-    else:
-        result[socket] = "RESULT LOGIN 1"
+
+def register(socket, request):
+    sep_req = request.strip().split(" ")
+    if len(sep_req) < 3:
+        socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+        return False
+
+    try:
+        userName = sep_req[1]
+        passwd = sep_req[2]
+        if userName in userInfo:
+            socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+            return False
+        userInfo[userName] = passwd
+        socket.sendall("RESULT RESGITER 1".encode('utf-8'))
         return True
+    except:
+        socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+        return False
+
 
 
 
