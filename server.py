@@ -99,6 +99,9 @@ def handle_request(socket, request):
     if request.startswith('JOIN'):
         join_channel(socket, request)
 
+    if request.startswith('SAY'):
+        say(socket, request)
+
 
 def log_in(socket, request):
     sep_req = request.strip().split(" ")
@@ -173,6 +176,13 @@ def join_channel(socket, request):
         feedback = "RESULT JOIN " + channel_name + " 0\n"
         socket.sendall(feedback.encode('utf-8'))
         return False
+
+    if socket in joinnedChannel:
+        joinnedChannels = joinnedChannel[socket]
+        if channel_name in joinnedChannels:
+            feedback = "RESULT JOIN " + channel_name + " 0\n"
+            socket.sendall(feedback.encode('utf-8'))
+            return False
     if not channel_name in channel_user:
         channel_user[channel_name] = [socket]
     else:
@@ -192,9 +202,11 @@ def say(socket, request):
     sep_req = request.strip().split(" ")
     channel_name = sep_req[1]
     message = sep_req[2]
+    userName = socket_user[socket]
 
-    if not channel_name in channels:
-        feedback = "RESULT"
+    channels[channel_name] = {userName: message}
+    feedback = "RECV " + userName + " " + " " + channel_name + message + "\n"
+    socket.sendall(feedback.encode('utf-8'))
 
 if __name__ == '__main__':
     run()
