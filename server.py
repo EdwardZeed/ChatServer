@@ -9,7 +9,10 @@ import sys
 host = '127.0.0.1'
 
 userInfo = {}
-result = {}
+channels = {}
+loggedInUser = []
+socket_user = {}
+channel_user = {}
 
 #Use this variable for your loop
 daemon_quit = False
@@ -38,11 +41,10 @@ def run():
 
     inputs = [server]
     outputs = []
-    result = {}
     server.setblocking(False)
 
     while True:
-        readable,writeable,exceptional=select.select(inputs, outputs, inputs, 1)
+        readable,writeable,exceptional=select.select(inputs, outputs, inputs, 3)
         for s in readable:
             if s == server:
                 client,addr = server.accept()
@@ -89,6 +91,12 @@ def handle_request(socket, request):
     if request.startswith('REGISTER'):
         register(socket, request)
 
+    if request.startswith('CREATE'):
+        create_channel(socket, request)
+
+    if request.startswith('JOIN'):
+        join_channel(socket, request)
+
 
 def log_in(socket, request):
     sep_req = request.strip().split(" ")
@@ -99,8 +107,13 @@ def log_in(socket, request):
         userName = sep_req[1]
         passwd = sep_req[2]
         if userName in userInfo:
+            if userName in loggedInUser:
+                socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
+                return False
             if passwd == userInfo[userName]:
                 socket.sendall("RESULT LOGIN 1\n".encode('utf-8'))
+                loggedInUser.append(userName)
+                socket_user[socket] = userName
                 return True
             else:
                 socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
@@ -131,7 +144,36 @@ def register(socket, request):
         socket.sendall("RESULT REGISTER 0\n".encode('utf-8'))
         return False
 
+def create_channel(socket, request):
+    sep_req = request.strip().split(" ")
+    channel_name = sep_req[1]
+    if not socket in socket_user:
+        feedback = "RESULT CREATE "+ channel_name + " 0\n"
+        socket.sendall(feedback.encode('utf-8'))
+        return False
+    if channel_name in channels:
+        feedback = "RESULT CREATE " + channel_name + " 0\n"
+        socket.sendall(feedback.encode('utf-8'))
+        return False
+    channels[channel_name] = None
+    feedback = "RESULT CREATE " + channel_name + " 1\n"
+    socket.sendall(feedback.encode('utf-8'))
+    return True
 
+def join_channel(socket, request):
+    sep_request = request.strip().split(" ")
+    channel_name = sep_request[1]
+    if not channel_name in channels:
+        feedback = "RESULT JOIN " + channel_name + " 0\n"
+        socket.sendall(feedback.encode('utf-8'))
+        return False
+    if not channel_name in channel_user:
+        channel_user[channel_name] = [socket]
+    else:
+        channel_user[channel_name].append(socket)
+    feedback = "RESULT JOIN " + channel_name + " 1\n"
+    socket.sendall(feedback.encode('utf-8'))
+    return True
 
 
 if __name__ == '__main__':
