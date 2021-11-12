@@ -93,42 +93,42 @@ def handle_request(socket, request):
 def log_in(socket, request):
     sep_req = request.strip().split(" ")
     if len(sep_req) < 3:
-        socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+        socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
         return False
     try:
         userName = sep_req[1]
         passwd = sep_req[2]
         if userName in userInfo:
             if passwd == userInfo[userName]:
-                socket.sendall("RESULT LOGIN 1".encode('utf-8'))
+                socket.sendall("RESULT LOGIN 1\n".encode('utf-8'))
                 return True
             else:
-                socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+                socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
                 return False
         else:
-            socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+            socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
             return False
     except:
-        socket.sendall("RESULT LOGIN 0".encode('utf-8'))
+        socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
         return False
 
 def register(socket, request):
     sep_req = request.strip().split(" ")
     if len(sep_req) < 3:
-        socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+        socket.sendall("RESULT RESGITER 0\n".encode('utf-8'))
         return False
 
     try:
         userName = sep_req[1]
         passwd = sep_req[2]
         if userName in userInfo:
-            socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+            socket.sendall("RESULT RESGITER 0\n".encode('utf-8'))
             return False
         userInfo[userName] = passwd
-        socket.sendall("RESULT RESGITER 1".encode('utf-8'))
+        socket.sendall("RESULT RESGITER 1\n".encode('utf-8'))
         return True
     except:
-        socket.sendall("RESULT RESGITER 0".encode('utf-8'))
+        socket.sendall("RESULT RESGITER 0\n".encode('utf-8'))
         return False
 
 
