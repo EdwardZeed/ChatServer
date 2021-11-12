@@ -204,7 +204,10 @@ def say(socket, request):
     message = ""
     i = 2
     while i < len(sep_req):
-        message = message + sep_req[i]
+        if i != len(sep_req) - 1:
+            message = message + sep_req[i] + " "
+        else:
+            message = message + sep_req[i]
         i += 1
     userName = socket_user[socket]
 
