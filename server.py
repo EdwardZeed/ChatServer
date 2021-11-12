@@ -11,8 +11,10 @@ host = '127.0.0.1'
 userInfo = {}
 channels = {}
 loggedInUser = []
+loggedInClient = []
 socket_user = {}
 channel_user = {}
+joinnedChannel = {}
 
 #Use this variable for your loop
 daemon_quit = False
@@ -110,9 +112,13 @@ def log_in(socket, request):
             if userName in loggedInUser:
                 socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
                 return False
+            if socket in loggedInClient:
+                socket.sendall("RESULT LOGIN 0\n".encode('utf-8'))
+                return False
             if passwd == userInfo[userName]:
                 socket.sendall("RESULT LOGIN 1\n".encode('utf-8'))
                 loggedInUser.append(userName)
+                loggedInClient.append(socket)
                 socket_user[socket] = userName
                 return True
             else:
@@ -171,10 +177,24 @@ def join_channel(socket, request):
         channel_user[channel_name] = [socket]
     else:
         channel_user[channel_name].append(socket)
+
+    if socket in joinnedChannel:
+        if not channel_name in joinnedChannel[socket]:
+            joinnedChannel[socket].append(channel_name)
+    else:
+        joinnedChannel[socket] = [channel_name]
+
     feedback = "RESULT JOIN " + channel_name + " 1\n"
     socket.sendall(feedback.encode('utf-8'))
     return True
 
+def say(socket, request):
+    sep_req = request.strip().split(" ")
+    channel_name = sep_req[1]
+    message = sep_req[2]
+
+    if not channel_name in channels:
+        feedback = "RESULT"
 
 if __name__ == '__main__':
     run()
