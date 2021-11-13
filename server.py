@@ -102,6 +102,9 @@ def handle_request(socket, request):
     if request.startswith('SAY'):
         say(socket, request)
 
+    if request.startswith('CHANNELS'):
+        all_channels(socket, request)
+
 
 def log_in(socket, request):
     sep_req = request.strip().split(" ")
@@ -156,8 +159,9 @@ def register(socket, request):
 def create_channel(socket, request):
     sep_req = request.strip().split(" ")
     channel_name = sep_req[1]
-    if not socket in socket_user:
-        feedback = "RESULT CREATE "+ channel_name + " 0\n"
+
+    if socket not in socket_user.keys():
+        feedback = "RESULT CREATE " + channel_name + " 0\n"
         socket.sendall(feedback.encode('utf-8'))
         return False
     if channel_name in channels:
@@ -172,7 +176,7 @@ def create_channel(socket, request):
 def join_channel(socket, request):
     sep_request = request.strip().split(" ")
     channel_name = sep_request[1]
-    if not channel_name in channels:
+    if channel_name not in channels:
         feedback = "RESULT JOIN " + channel_name + " 0\n"
         socket.sendall(feedback.encode('utf-8'))
         return False
@@ -215,6 +219,18 @@ def say(socket, request):
     feedback = "RECV " + userName + " " + channel_name + " " + message + "\n"
     socket.sendall(feedback.encode('utf-8'))
 
+def all_channels(socket, request):
+    sorted_channel = sorted(channels)
+    feedback = "RESULT CHANNELS "
+    i = 0
+    while i < len(sorted_channel):
+        if i != len(sorted_channel) - 1:
+            feedback += sorted_channel[i] + ", "
+        else:
+            feedback += sorted_channel[i]
+        i += 1
+    feedback += "\n"
+    socket.sendall(feedback.encode('utf-8'))
 if __name__ == '__main__':
     run()
 
