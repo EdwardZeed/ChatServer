@@ -33,6 +33,7 @@ def run():
     # Call your own functions from within 
     # the run() funcion
     port = int(sys.argv[1])
+    socket.setdefaulttimeout(3)
     server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
@@ -44,13 +45,14 @@ def run():
     inputs = [server]
     outputs = []
     server.setblocking(False)
-
+    server.settimeout(3)
     while True:
         readable,writeable,exceptional=select.select(inputs, outputs, inputs, 3)
         for s in readable:
             if s == server:
                 client,addr = server.accept()
                 client.setblocking(False)
+                client.settimeout(3)
 
                 # if not client in inputs:
                 #     inputs.append(client)
