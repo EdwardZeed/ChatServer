@@ -1,0 +1,5 @@
+REGISTER test4 ABC
+LOGIN test4 ABC
+CREATE channel3
+JOIN channel3
+q

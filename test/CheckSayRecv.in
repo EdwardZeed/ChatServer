@@ -1,0 +1,6 @@
+REGISTER test5 ABC
+LOGIN test5 ABC
+CREATE channel4
+JOIN channel4
+SAY channel4 hi this is from test
+q

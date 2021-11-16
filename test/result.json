@@ -1,0 +1,8 @@
+[
+  {"CheckChannels": "Passed"},
+  {"CheckCreate": "Passed"},
+  {"CheckJoin": "Passed"},
+  {"CheckLogin": "Passed"},
+  {"CheckRegister": "Passed"},
+  {"CheckSayRecv": "Passed"}
+]
